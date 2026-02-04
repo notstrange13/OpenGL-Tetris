@@ -6,16 +6,14 @@
 #include <ctime>
 #include <cstdlib>
 
-// Window size
 const int WINDOW_WIDTH = 300;
 const int WINDOW_HEIGHT = 600;
 
-// Board dimensions (10 columns x 20 rows)
+
 const int BOARD_WIDTH = 10;
 const int BOARD_HEIGHT = 20;
-const int BLOCK_SIZE = 30; // pixel size of one block
+const int BLOCK_SIZE = 30; 
 
-// Tetromino shapes (4x4 grid)
 const std::array<std::array<std::array<int, 4>, 4>, 7> tetrominoes = { {// I
                                                                        {{{0, 0, 0, 0},
                                                                          {1, 1, 1, 1},
@@ -52,26 +50,25 @@ const std::array<std::array<std::array<int, 4>, 4>, 7> tetrominoes = { {// I
                                                                                      {0, 0, 0, 0},
                                                                                      {0, 0, 0, 0}}}} };
 
-// Board array: 0 for empty, others for color index
 int board[BOARD_HEIGHT][BOARD_WIDTH] = { 0 };
 
-// Current piece data
+
 struct Piece
 {
-    int x, y;     // position on the board
-    int type;     // 0-6
-    int rotation; // 0-3
+    int x, y;     
+    int type;     
+    int rotation; 
 };
 
 Piece currentPiece;
 
-// Time control
+
 double lastFallTime = 0;
-double fallDelay = 0.5; // seconds per automatic fall
+double fallDelay = 0.5; 
 
 GLFWwindow* window;
 
-// Rotate piece 90 degrees clockwise
+
 std::array<std::array<int, 4>, 4> rotatePiece(const std::array<std::array<int, 4>, 4>& shape, int rotation)
 {
     std::array<std::array<int, 4>, 4> result = {};
@@ -99,7 +96,7 @@ std::array<std::array<int, 4>, 4> rotatePiece(const std::array<std::array<int, 4
     return result;
 }
 
-// Check collision of current piece with board or boundaries
+
 bool checkCollision(const Piece& piece)
 {
     auto shape = rotatePiece(tetrominoes[piece.type], piece.rotation);
@@ -120,7 +117,7 @@ bool checkCollision(const Piece& piece)
     return false;
 }
 
-// Lock piece into the board
+
 void lockPiece(const Piece& piece)
 {
     auto shape = rotatePiece(tetrominoes[piece.type], piece.rotation);
@@ -139,7 +136,7 @@ void lockPiece(const Piece& piece)
     }
 }
 
-// Clear full lines and move above lines down
+
 int clearLines()
 {
     int linesCleared = 0;
@@ -164,18 +161,18 @@ int clearLines()
                     board[ty][x] = board[ty + 1][x];
                 }
             }
-            // Clear top row
+            
             for (int x = 0; x < BOARD_WIDTH; x++)
             {
                 board[BOARD_HEIGHT - 1][x] = 0;
             }
-            y--; // recheck same row because rows moved down
+            y--; 
         }
     }
     return linesCleared;
 }
 
-// Create new piece at top center
+
 void newPiece()
 {
     currentPiece.type = rand() % 7;
@@ -189,7 +186,7 @@ void newPiece()
     }
 }
 
-// Move piece left or right
+
 void movePiece(int dx)
 {
     Piece moved = currentPiece;
@@ -198,7 +195,7 @@ void movePiece(int dx)
         currentPiece = moved;
 }
 
-// Rotate piece
+
 void rotatePieceCW()
 {
     Piece rotated = currentPiece;
@@ -207,7 +204,7 @@ void rotatePieceCW()
         currentPiece = rotated;
 }
 
-// Soft drop piece (move down)
+
 bool softDrop()
 {
     Piece dropped = currentPiece;
@@ -220,7 +217,7 @@ bool softDrop()
     return false;
 }
 
-// Draw a single block at board coordinate with color
+
 void drawBlock(int x, int y, int color)
 {
     float fx = x * BLOCK_SIZE;
@@ -233,37 +230,37 @@ void drawBlock(int x, int y, int color)
         r = 0.0f;
         g = 1.0f;
         b = 1.0f;
-        break; // Cyan (I)
+        break; 
     case 2:
         r = 0.0f;
         g = 0.0f;
         b = 1.0f;
-        break; // Blue (J)
+        break; 
     case 3:
         r = 1.0f;
         g = 0.65f;
         b = 0.0f;
-        break; // Orange (L)
+        break; 
     case 4:
         r = 1.0f;
         g = 1.0f;
         b = 0.0f;
-        break; // Yellow (O)
+        break; 
     case 5:
         r = 0.0f;
         g = 1.0f;
         b = 0.0f;
-        break; // Green (S)
+        break; 
     case 6:
         r = 0.5f;
         g = 0.0f;
         b = 0.5f;
-        break; // Purple (T)
+        break; 
     case 7:
         r = 1.0f;
         g = 0.0f;
         b = 0.0f;
-        break; // Red (Z)
+        break; 
     }
 
     glColor3f(r, g, b);
@@ -274,7 +271,6 @@ void drawBlock(int x, int y, int color)
     glVertex2f(fx, fy + BLOCK_SIZE);
     glEnd();
 
-    // Optional: Draw a darker border
     glColor3f(r * 0.5f, g * 0.5f, b * 0.5f);
     glBegin(GL_LINE_LOOP);
     glVertex2f(fx, fy);
@@ -284,12 +280,10 @@ void drawBlock(int x, int y, int color)
     glEnd();
 }
 
-// Render board and current piece
 void renderGame()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw board blocks
     for (int y = 0; y < BOARD_HEIGHT; y++)
     {
         for (int x = 0; x < BOARD_WIDTH; x++)
@@ -301,7 +295,7 @@ void renderGame()
         }
     }
 
-    // Draw current piece
+    
     auto shape = rotatePiece(tetrominoes[currentPiece.type], currentPiece.rotation);
     for (int y = 0; y < 4; y++)
     {
@@ -315,7 +309,7 @@ void renderGame()
     }
 }
 
-// Keyboard input callback
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action != GLFW_PRESS && action != GLFW_REPEAT)
@@ -336,7 +330,6 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         rotatePieceCW();
         break;
     case GLFW_KEY_SPACE:
-        // Hard drop
         while (softDrop())
             ;
         break;
@@ -406,4 +399,5 @@ int main()
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
+
 }
